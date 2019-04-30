@@ -10,8 +10,9 @@ object TextToParagraph {
   private val cleaner = new HtmlCleaner
 
   type Paragraph = String
+  type ID = String
 
-  def transform(file: File, from: String): Array[String] = (readHtml andThen
+  def transform(file: File, from: String): Array[(ID, String)] = (readHtml andThen
     keepParagraphs andThen
     takeFrom(from) andThen
     convertToString andThen
@@ -24,17 +25,18 @@ object TextToParagraph {
 
   def keepParagraphs(rootNode: TagNode): Array[TagNode] = rootNode.getElementsByName("p", true)
 
-  def convertToString(nodes: Array[TagNode]): Array[String] = nodes.map(_.getText.toString)
+  def convertToString(nodes: Array[TagNode]): Array[(ID, String)] = nodes.map(x => (x.getAttributeByName("id"), x.getText.toString))
 
-  def cleanParagraphs(paragraphs: Array[String]): Array[String] = paragraphs
+  def cleanParagraphs(paragraphs: Array[(ID, String)]): Array[(ID, String)] = paragraphs
     .map(cleanParagraph)
 
-  def cleanParagraph(paragraph: String): String = StringEscapeUtils.unescapeHtml4(paragraph).lines.
-    map(removeTrailingNumber).
-    map(_.replace("\u00a0", "")).
-    filter(!_.isEmpty).
-    map(_.trim).
-    mkString("\n").trim
+  def cleanParagraph(paragraph: (ID, String)): (ID, String) = (paragraph._1,
+    StringEscapeUtils.unescapeHtml4(paragraph._2).lines.
+      map(removeTrailingNumber).
+      map(_.replace("\u00a0", "")).
+      filter(!_.isEmpty).
+      map(_.trim).
+      mkString("\n").trim)
 
   private def removeTrailingNumber: String => String = _.replaceAll("[1-9]*[05]$", "")
 }

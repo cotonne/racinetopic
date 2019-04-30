@@ -8,7 +8,7 @@ class TextToParagraphSpec extends FlatSpec with Matchers {
 
   val html = new File(getClass.getResource("/pg15790.html").getPath)
 
-  val paragraphs: Array[String] = TextToParagraph.transform(html, "id00056")
+  val paragraphs: Array[(String, String)] = TextToParagraph.transform(html, "id00056")
 
 
   "cleanParagraph" should "remove blank lines, trims and remove final number" in {
@@ -34,7 +34,7 @@ class TextToParagraphSpec extends FlatSpec with Matchers {
         |
         |  Quel climat, quel désert a donc pu te cacher?               10
       """.stripMargin
-    val cleanText = TextToParagraph.cleanParagraph(initialText)
+    val cleanText = TextToParagraph.cleanParagraph(("", initialText))._2
 
     print(cleanText(cleanText.length - 2).toInt)
     cleanText shouldEqual
@@ -51,7 +51,7 @@ class TextToParagraphSpec extends FlatSpec with Matchers {
   }
 
   "Text" should "be transform in paragraph" in {
-    paragraphs should contain(
+    paragraphs should contain(("id00071",
       """Est-ce toi, chere Élise?  O jour trois fois heureux!
         |Que béni soit le del qui te rend à mes voeux,
         |Toi qui de Benjamin comme moi descendue,
@@ -61,7 +61,7 @@ class TextToParagraphSpec extends FlatSpec with Matchers {
         |Combien ce temps encore est cher à ma mémoire!
         |Mais toi, de ton Esther ignorais-tu la gloire?
         |Depuis plus de six mois que je te fais chercher,
-        |Quel climat, quel désert a donc pu te cacher?""".stripMargin)
+        |Quel climat, quel désert a donc pu te cacher?""".stripMargin))
   }
 
   "Text" should "provide book content" in {
