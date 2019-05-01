@@ -5,14 +5,16 @@ import org.apache.spark.sql._
 import org.apache.spark.sql.functions._
 import org.apache.spark.ml.feature.CountVectorizer
 
-class TF_IDF(private val spark: SparkSession) {
-
-  import spark.implicits._
-
+object TF_IDF {
 
   private val ID_COLUMN_NAME = "id"
 
-  def docTermFrequen(terms: DataFrame): ((Map[Long, String], Array[String]), DataFrame) = {
+  type DOC_IDS = Map[Long, String]
+
+  type TERM_IDS = Array[String]
+
+  def docTermFrequen(spark: SparkSession, terms: Dataset[(String, Set[String])]): ((DOC_IDS, TERM_IDS), DataFrame) = {
+    import spark.implicits._
     val termsDF = terms.toDF(ID_COLUMN_NAME, "terms")
     // filter out all documents that have zero or one term
     val filtered = termsDF.where(size($"terms") > 1)
@@ -35,8 +37,8 @@ class TF_IDF(private val spark: SparkSession) {
     val vocabModel = countVectorizer.fit(filtered)
     val docTermFreqs = vocabModel.transform(filtered)
     docTermFreqs.cache()
-    val termIds: Array[String] = vocabModel.vocabulary
-    val docIds: Map[Long, String] = docTermFreqs.rdd.map(_.getString(0)).
+    val termIds: TERM_IDS = vocabModel.vocabulary
+    val docIds: DOC_IDS = docTermFreqs.rdd.map(_.getString(0)).
       zipWithUniqueId().
       map(_.swap).
       collect().toMap

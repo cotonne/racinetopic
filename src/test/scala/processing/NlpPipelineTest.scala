@@ -6,7 +6,7 @@ class NlpPipelineTest extends FlatSpec with Matchers {
 
   "NlpPipeline" should "transform a text to a normalized bag of words" in {
     val pipeline = NlpPipeline()
-    val text = pipeline.plainTextToLemmas(
+    val text = pipeline.normalize(
       """Est-ce toi, chere Élise?  O jour trois fois heureux!
         |Que béni soit le del qui te rend à mes voeux,
         |Toi qui de Benjamin comme moi descendue,

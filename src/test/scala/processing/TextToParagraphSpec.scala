@@ -1,14 +1,14 @@
 package processing
 
-import java.io.File
-
 import org.scalatest._
+
+import scala.io.Source
 
 class TextToParagraphSpec extends FlatSpec with Matchers {
 
-  val html = new File(getClass.getResource("/pg15790.html").getPath)
+  val html = Source.fromInputStream(getClass.getResourceAsStream("/pg15790.html")).getLines().mkString("\n")
 
-  val paragraphs: Array[(String, String)] = TextToParagraph.transform(html, "id00056")
+  val paragraphs = TextToParagraph.transform("id00056", "id00614")(html)
 
 
   "cleanParagraph" should "remove blank lines, trims and remove final number" in {
@@ -51,7 +51,7 @@ class TextToParagraphSpec extends FlatSpec with Matchers {
   }
 
   "Text" should "be transform in paragraph" in {
-    paragraphs should contain(("id00071",
+    paragraphs.find(_._1 == "id00071").head._2 shouldBe
       """Est-ce toi, chere Élise?  O jour trois fois heureux!
         |Que béni soit le del qui te rend à mes voeux,
         |Toi qui de Benjamin comme moi descendue,
@@ -61,10 +61,12 @@ class TextToParagraphSpec extends FlatSpec with Matchers {
         |Combien ce temps encore est cher à ma mémoire!
         |Mais toi, de ton Esther ignorais-tu la gloire?
         |Depuis plus de six mois que je te fais chercher,
-        |Quel climat, quel désert a donc pu te cacher?""".stripMargin))
+        |Quel climat, quel désert a donc pu te cacher?""".stripMargin
   }
 
   "Text" should "provide book content" in {
-    paragraphs should not contain "[1]These words recur most frequently in her later correspondence with\nSt. Cyr."
+    val p = paragraphs.map(_._2)
+    p should not contain "[1]These words recur most frequently in her later correspondence with\nSt. Cyr."
+    p should not contain "3 ce lieu, of course is St. Cyr."
   }
 }

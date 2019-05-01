@@ -1,7 +1,5 @@
 package processing
 
-import java.io.File
-
 import org.apache.commons.text.StringEscapeUtils
 import org.htmlcleaner.{HtmlCleaner, TagNode}
 
@@ -12,22 +10,25 @@ object TextToParagraph {
   type Paragraph = String
   type ID = String
 
-  def transform(file: File, from: String): Array[(ID, String)] = (readHtml andThen
+  def transform(from: String, to: String): String => List[(ID, String)] = (readHtml andThen
     keepParagraphs andThen
     takeFrom(from) andThen
+    takeTo(to) andThen
     convertToString andThen
     cleanParagraphs
-    ) (file)
+    ) (_)
 
-  val readHtml: File => TagNode = (file: File) => cleaner.clean(file)
+  val readHtml: String => TagNode = cleaner.clean
 
-  def takeFrom(from: String): Array[TagNode] => Array[TagNode] = _.dropWhile(node => node.getAttributeByName("id") != from)
+  def takeFrom(from: String): List[TagNode] => List[TagNode] = _.dropWhile(node => node.getAttributeByName("id") != from)
 
-  def keepParagraphs(rootNode: TagNode): Array[TagNode] = rootNode.getElementsByName("p", true)
+  def takeTo(to: String): List[TagNode] => List[TagNode] = _.takeWhile(node => node.getAttributeByName("id") != to)
 
-  def convertToString(nodes: Array[TagNode]): Array[(ID, String)] = nodes.map(x => (x.getAttributeByName("id"), x.getText.toString))
+  def keepParagraphs(rootNode: TagNode): List[TagNode] = rootNode.getElementsByName("p", true).toList
 
-  def cleanParagraphs(paragraphs: Array[(ID, String)]): Array[(ID, String)] = paragraphs
+  def convertToString(nodes: List[TagNode]): List[(ID, String)] = nodes.map(x => (x.getAttributeByName("id"), x.getText.toString))
+
+  def cleanParagraphs(paragraphs: List[(ID, String)]): List[(ID, String)] = paragraphs
     .map(cleanParagraph)
 
   def cleanParagraph(paragraph: (ID, String)): (ID, String) = (paragraph._1,

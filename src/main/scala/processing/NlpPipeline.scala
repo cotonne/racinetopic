@@ -31,21 +31,21 @@ case class NlpPipeline() {
     new StanfordCoreNLP(props)
   }
 
-  def isOnlyLetters(str: String): Boolean = {
+  private def isOnlyLetters(str: String): Boolean = {
     str.forall(c => Character.isLetter(c))
   }
 
-  def plainTextToLemmas(text: String): BagOfWords = {
+  def normalize(text: String): BagOfWords = {
     val doc: Annotation = new Annotation(text)
     pipeline.annotate(doc)
     val annotationToStrings = toBagOfWords andThen
       toLowerCase andThen
       removeStopWords andThen
-      normalize
+      lematize
     annotationToStrings(doc)
   }
 
-  val toBagOfWords: Annotation => BagOfWords = doc => {
+  private val toBagOfWords: Annotation => BagOfWords = doc => {
     val lemmas = new ArrayBuffer[String]()
     val sentences = doc.get(classOf[SentencesAnnotation])
     for (sentence <- sentences.asScala;
@@ -56,13 +56,13 @@ case class NlpPipeline() {
     lemmas.toSet
   }
 
-  val toLowerCase: BagOfWords => BagOfWords = bagOfWords => bagOfWords.map(_.toLowerCase)
+  private val toLowerCase: BagOfWords => BagOfWords = bagOfWords => bagOfWords.map(_.toLowerCase)
 
-  val removeStopWords: BagOfWords => BagOfWords = _.filter(lemma => lemma.length > 2 && !stopWords.contains(lemma)
+  private val removeStopWords: BagOfWords => BagOfWords = _.filter(lemma => lemma.length > 2 && !stopWords.contains(lemma)
     && isOnlyLetters(lemma))
 
   private val MORPHEM = Seq("NOUN", "VERB", "ADV", "ADJ")
-  val normalize: BagOfWords => BagOfWords = x => x.map(FrenchLemmaAndPOSAnnotator.transform)
+  private val lematize: BagOfWords => BagOfWords = x => x.map(FrenchLemmaAndPOSAnnotator.transform)
     .filter(word => MORPHEM.contains(word._2))
     .map(_._1)
 }

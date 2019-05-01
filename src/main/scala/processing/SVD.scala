@@ -5,7 +5,7 @@ import org.apache.spark.ml.linalg.{Vector => MLVector}
 import org.apache.spark.mllib.linalg.distributed.RowMatrix
 import org.apache.spark.sql.DataFrame
 
-class SVD {
+object SVD {
 
   type TERM_x_CONCEPT = Matrix
 
@@ -17,7 +17,7 @@ class SVD {
     }
     vecRdd.cache()
     val mat = new RowMatrix(vecRdd)
-    val k = 1000
+    val k = 100
     val svd = mat.computeSVD(k, computeU=true)
     (svd.U, svd.V)
   }
