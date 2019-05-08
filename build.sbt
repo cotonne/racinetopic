@@ -22,6 +22,7 @@ lazy val root = (project in file("."))
     libraryDependencies += "net.sourceforge.htmlcleaner" % "htmlcleaner" % "2.22",
     libraryDependencies += "org.apache.commons" % "commons-text" % "1.6",
     libraryDependencies += "fr.cnam" % "myopennlp" % "1.0.0",
+    // libraryDependencies += "org.apache.lucene" % "lucene-core" % "7.7.1",
     // libraryDependencies += "com.databricks" % "spark-xml_2.11" % "0.5.0",
 
     libraryDependencies ++= {

@@ -1,6 +1,14 @@
 package processing
 
+import java.util
+
 import fllemmatizer.FLLemmatizer
+import processing.FrenchLemmaAndPOSAnnotator.{RACINE, TAG_POS}
+
+object FrenchLemmaAndPOSAnnotator {
+  type RACINE = String
+  type TAG_POS = String
+}
 
 /**
   * Dans Stanford Core NLP (framework utilisé dans le TP fouille de données textuelles), l’implémentation de la
@@ -10,15 +18,24 @@ import fllemmatizer.FLLemmatizer
   * hollandais, anglais, allemand, italien et espagnol).
   *
   */
-object FrenchLemmaAndPOSAnnotator {
-  private val lemmatizer: FLLemmatizer = new FLLemmatizer("fr")
+class FrenchLemmaAndPOSAnnotator() {
+  private val lemmatizer: CustomFLLemmatizer = new CustomFLLemmatizer()
 
-  type RACINE = String
-  type TAG_POS = String
-
-  def transform(word: String): (RACINE, TAG_POS) = {
+  def transform(wordAndMorphem: (String, String)): (RACINE, TAG_POS) = {
     import scala.collection.JavaConversions._
-    val lemma = lemmatizer.lemmatize(word, true).flatten
-    (lemma.get(2), lemma.get(1))
+    val morph = lemmatizer.genericTypes(wordAndMorphem._2.toLowerCase)
+    val lemma = lemmatizer.dictionnaries
+      .getOrDefault(morph, Map.empty[String, String])
+      .getOrDefault(wordAndMorphem._1, wordAndMorphem._1)
+    (lemma, morph)
   }
+}
+
+class CustomFLLemmatizer() {
+  private val l = new FLLemmatizer("fr")
+
+  val dictionnaries: Map[String, util.Map[String, String]] = Seq("noun", "adj", "adv", "verb", "det", "pronoun")
+    .map(morph => (morph.toUpperCase, l.loadDictionary(s"ressources/dictionaries/fr/${morph}Dic.txt")))
+    .toMap
+  val genericTypes: util.Map[RACINE, RACINE] = l.getFileContentAsMap("ressources/universal-pos-tags/frPOSMapping.txt", "######", true)
 }

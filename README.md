@@ -1,5 +1,22 @@
 # Pré-requis
 
+## myopennlp
+
+## Récupération de myopennlp.jar
+
+    wget http://cedric.cnam.fr/vertigo/Cours/RCP216/tpLemmatisationFr.html
+
+## Amélioration du dictionnaire
+
+    wget http://www.dicollecte.org/download/fr/lexique-dicollecte-fr-v6.4.1.zip
+    unzip lexique-dicollecte-fr-v6.4.1.zip
+    tail -n +16 lexique-dicollecte-fr-v6.4.1.txt  | cut -d$'\t' -f4,3,5 > lexique-dicollecte-fr-v6.4.1-simple.txt
+    jar -xf myopennlp.jar fllemmatizer/ressources/dictionaries/fr/
+    python3 scripts/lexique.py adv
+    jar -uf myopennlp.jar fllemmatizer/
+
+## Installation
+
 Installation de la librairie  (myopennlp.jar)[http://cedric.cnam.fr/vertigo/Cours/RCP216/tpLemmatisationFr.html] 
 avec :
 
@@ -19,3 +36,4 @@ avec :
      --master local[*] \
      --conf book=/path/to/book 
      target/scala-2.11/racinetopic_2.11-2.4.0_0.1.0-SNAPSHOT.jar
+
