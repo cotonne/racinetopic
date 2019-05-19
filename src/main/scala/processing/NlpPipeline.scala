@@ -12,7 +12,7 @@ import scala.io.Source
 case class NlpPipeline() {
   type BagOfWords = Set[String]
   type POSBagOfWords = Map[String, String]
-  val stopWords: Set[String] = Source.fromInputStream(getClass.getResourceAsStream("/french-nltk-stopwords")).getLines().toSet
+  val stopWords: Set[String] = Source.fromInputStream(getClass.getResourceAsStream("/stopwords-fr.txt")).getLines().toSet
   val pipeline: StanfordCoreNLP = createNLPPipeline()
   private val lemmatizer: CustomFLLemmatizer = new CustomFLLemmatizer()
 
