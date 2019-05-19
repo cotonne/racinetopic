@@ -18,8 +18,7 @@ object FrenchLemmaAndPOSAnnotator {
   * hollandais, anglais, allemand, italien et espagnol).
   *
   */
-class FrenchLemmaAndPOSAnnotator() {
-  private val lemmatizer: CustomFLLemmatizer = new CustomFLLemmatizer()
+class FrenchLemmaAndPOSAnnotator(lemmatizer: CustomFLLemmatizer) {
 
   def transform(wordAndMorphem: (String, String)): (RACINE, TAG_POS) = {
     import scala.collection.JavaConversions._

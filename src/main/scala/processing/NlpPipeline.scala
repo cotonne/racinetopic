@@ -14,6 +14,7 @@ case class NlpPipeline() {
   type POSBagOfWords = Map[String, String]
   val stopWords: Set[String] = Source.fromInputStream(getClass.getResourceAsStream("/french-nltk-stopwords")).getLines().toSet
   val pipeline: StanfordCoreNLP = createNLPPipeline()
+  private val lemmatizer: CustomFLLemmatizer = new CustomFLLemmatizer()
 
   private def createNLPPipeline(): StanfordCoreNLP = {
     val props = new Properties()
@@ -64,9 +65,9 @@ case class NlpPipeline() {
     && isOnlyLetters(tuple._1))
 
   private val MORPHEM = Seq("NOUN", "VERB", "ADV", "ADJ")
-  private val lemmatize: POSBagOfWords => BagOfWords = xxx => {
-    val annotator = new FrenchLemmaAndPOSAnnotator()
-    xxx.map(annotator.transform)
+  private val lemmatize: POSBagOfWords => BagOfWords = posBoW => {
+    val annotator = new FrenchLemmaAndPOSAnnotator(lemmatizer)
+    posBoW.map(annotator.transform)
       .filter(word => MORPHEM.contains(word._2))
       .keySet
   }
