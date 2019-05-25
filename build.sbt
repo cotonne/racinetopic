@@ -10,6 +10,7 @@ ThisBuild / organization := "fr.cnam"
 ThisBuild / organizationName := "rcp216"
 
 resolvers += Resolver.mavenLocal
+resolvers += "Spring" at "http://repo.spring.io/plugins-release/"
 
 assemblyOption in assembly := (assemblyOption in assembly).value.copy(includeScala = false)
 assemblyJarName in assembly := s"${name.value}_${scalaBinaryVersion.value}-${sparkVersion}_${version.value}.jar"
@@ -22,6 +23,7 @@ lazy val root = (project in file("."))
     libraryDependencies += "net.sourceforge.htmlcleaner" % "htmlcleaner" % "2.22",
     libraryDependencies += "org.apache.commons" % "commons-text" % "1.6",
     libraryDependencies += "fr.cnam" % "myopennlp" % "1.0.0",
+    libraryDependencies += "dk.dren" % "hunspell" % "1.3.2",
     // libraryDependencies += "org.apache.lucene" % "lucene-core" % "7.7.1",
     // libraryDependencies += "com.databricks" % "spark-xml_2.11" % "0.5.0",
 

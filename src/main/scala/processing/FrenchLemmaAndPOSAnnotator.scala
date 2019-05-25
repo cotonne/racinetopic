@@ -2,6 +2,7 @@ package processing
 
 import java.util
 
+import dk.dren.hunspell.Hunspell
 import fllemmatizer.FLLemmatizer
 import processing.FrenchLemmaAndPOSAnnotator.{RACINE, TAG_POS}
 
@@ -18,14 +19,19 @@ object FrenchLemmaAndPOSAnnotator {
   * hollandais, anglais, allemand, italien et espagnol).
   *
   */
-class FrenchLemmaAndPOSAnnotator(lemmatizer: CustomFLLemmatizer) {
+class FrenchLemmaAndPOSAnnotator(lemmatizer: CustomFLLemmatizer, hunspellDictionary: Hunspell#Dictionary) {
 
   def transform(wordAndMorphem: (String, String)): (RACINE, TAG_POS) = {
     import scala.collection.JavaConversions._
     val morph = lemmatizer.genericTypes(wordAndMorphem._2.toLowerCase)
-    val lemma = lemmatizer.dictionnaries
+    val lemme = wordAndMorphem._1
+    val isNamedEntity = lemmatizer.dictionaries.getOrDefault("ENTITY", Map.empty[String, String]).contains(lemme)
+    val word = if (!isNamedEntity && hunspellDictionary.misspelled(lemme)) {
+      hunspellDictionary.suggest(lemme).get(0)
+    } else lemme
+    val lemma = lemmatizer.dictionaries
       .getOrDefault(morph, Map.empty[String, String])
-      .getOrDefault(wordAndMorphem._1, wordAndMorphem._1)
+      .getOrDefault(word, word)
     (lemma, morph)
   }
 }
@@ -33,7 +39,7 @@ class FrenchLemmaAndPOSAnnotator(lemmatizer: CustomFLLemmatizer) {
 class CustomFLLemmatizer() {
   private val l = new FLLemmatizer("fr")
 
-  val dictionnaries: Map[String, util.Map[String, String]] = Seq("noun", "adj", "adv", "verb", "det", "pronoun")
+  val dictionaries: Map[String, util.Map[String, String]] = Seq("entity", "noun", "adj", "adv", "verb", "det", "pronoun")
     .map(morph => (morph.toUpperCase, l.loadDictionary(s"ressources/dictionaries/fr/${morph}Dic.txt")))
     .toMap
   val genericTypes: util.Map[RACINE, RACINE] = l.getFileContentAsMap("ressources/universal-pos-tags/frPOSMapping.txt", "######", true)

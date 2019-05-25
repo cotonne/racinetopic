@@ -12,7 +12,7 @@
     unzip lexique-dicollecte-fr-v6.4.1.zip
     tail -n +16 lexique-dicollecte-fr-v6.4.1.txt  | cut -d$'\t' -f4,3,5 > lexique-dicollecte-fr-v6.4.1-simple.txt
     jar -xf myopennlp.jar fllemmatizer/ressources/dictionaries/fr/
-    python3 scripts/lexique.py adv
+    for typologie in adv adj; do python3 scripts/lexique.py $typologie; done
     jar -uf myopennlp.jar fllemmatizer/
 
 ## Installation

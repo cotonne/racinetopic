@@ -4,7 +4,7 @@ import org.apache.spark.sql.{DataFrame, Dataset, SparkSession}
 import org.slf4j.LoggerFactory
 import processing.SVD.{DOC_x_CONCEPT, TERM_x_CONCEPT}
 import processing.TF_IDF.{DOC_IDS, TERM_IDS}
-import processing.TextToParagraph.ID
+import processing.TextToParagraph.{ACTOR, ID}
 import processing.{NlpPipeline, SVD, TF_IDF, TextToParagraph}
 
 import scala.collection.mutable.ArrayBuffer
@@ -26,12 +26,12 @@ object FindConceptProg {
     val book: Dataset[String] = spark.sparkContext.wholeTextFiles(aBookByRacine).toDS().map(_._2)
 
 
-    val paragraphs: Dataset[(ID, String)] = book.flatMap(TextToParagraph.transform("id00056", "id00614"))
+    val paragraphs: Dataset[(ID, (ACTOR, String))] = book.flatMap(TextToParagraph.transform("id00056", "id00614"))
 
     val paragraphsAsBoW: Dataset[(String, Set[String])] = paragraphs.mapPartitions { iter =>
       val pipeline = NlpPipeline()
       iter.map { case (id, contents) =>
-        (id, pipeline.normalize(contents))
+        (id, pipeline.normalize(contents._1, contents._2))
       }
     }
 
@@ -42,13 +42,21 @@ object FindConceptProg {
 
     val u_v: (DOC_x_CONCEPT, TERM_x_CONCEPT) = SVD.doIt(tuple._2)
 
-    val topConceptTerms = topTermsInTopConcepts(u_v._2, 4, 10, tuple._1._2)
-    val topConceptDocs = topDocsInTopConcepts(u_v._1, 4, 10, tuple._1._1)
+    val topConceptTerms = topTermsInTopConcepts(u_v._2, 10, 10, tuple._1._2)
+    val topConceptDocs = topDocsInTopConcepts(u_v._1, 10, 10, tuple._1._1)
     for ((terms, docs) <- topConceptTerms.zip(topConceptDocs)) {
       println("Concept terms: " + terms.map(_._1).mkString(", "))
       println("Concept docs: " + docs.map(_._1).mkString(", "))
       println()
     }
+
+    val wordsCount = paragraphsAsBoW.flatMap(x => x._2)
+      .map(word => (word, 1))
+      .rdd
+      .reduceByKey((a, b) => a + b)
+      .filter { case (k, v) => v > 1 }
+      .map { case (k, v) => (k + " ") * v }
+    wordsCount.saveAsTextFile("wordcount")
   }
 
   def topTermsInTopConcepts(

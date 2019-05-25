@@ -1612,7 +1612,7 @@ progression===progression;progressions
 publicité===publicité;publicités
 teneur===teneur;teneurs;teneur;teneurs;teneuses;teneuse
 cassation===cassation;cassations
-voeu===voeux;voeu
+vœu===vœux;vœu
 Bourgogne===Bourgogne
 poème===poème;poèmes
 archevêque===archevêque;archevêques
