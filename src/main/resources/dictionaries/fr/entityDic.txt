@@ -4,7 +4,7 @@ amalecite===amalecite
 amalécite===amalécite
 aman===aman
 asaph===asaph
-asie,<br>===asie,<br>
+asie===asie
 assuérus===assuérus
 assyriens===assyriens
 benjamin===benjamin

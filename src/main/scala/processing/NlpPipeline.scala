@@ -16,6 +16,7 @@ case class NlpPipeline() {
   val pipeline: StanfordCoreNLP = createNLPPipeline()
   private val lemmatizer: CustomFLLemmatizer = new CustomFLLemmatizer()
   private val hunspellDictionary: Hunspell#Dictionary = Hunspell.getInstance.getDictionary("dictionaries/fr_FR/fr")
+
   private def createNLPPipeline(): StanfordCoreNLP = {
     val props = new Properties()
     // cf. https://stanfordnlp.github.io/CoreNLP/annotators.html
@@ -67,7 +68,7 @@ case class NlpPipeline() {
   private val removeStopWords: POSBagOfWords => POSBagOfWords = bow => bow.filter(tuple => tuple._1.length > 2 && !stopWords.contains(tuple._1)
     && isOnlyLetters(tuple._1))
 
-  private val replaceJeWithActor: ACTOR => POSBagOfWords => POSBagOfWords = actor => bow => bow.map(word => if (word._1 == "je") (actor, word._2) else word)
+  private val replaceJeWithActor: ACTOR => POSBagOfWords => POSBagOfWords = actor => bow => bow.map(word => if (word._1 == "je" || word._1 == "j'") (actor, word._2) else word)
 
   private val MORPHEM = Seq("ENTITY", "NOUN", "VERB", "ADV", "ADJ")
   private val lemmatize: POSBagOfWords => BagOfWords = posBoW => {

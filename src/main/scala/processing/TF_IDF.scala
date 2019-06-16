@@ -32,8 +32,8 @@ object TF_IDF {
       */
     val countVectorizer = new CountVectorizer().
       setInputCol("terms")
-      .setOutputCol("termFreqs").
-      setVocabSize(numTerms)
+      .setOutputCol("termFreqs")
+      .setVocabSize(numTerms)
     val vocabModel = countVectorizer.fit(filtered)
     val docTermFreqs = vocabModel.transform(filtered)
     docTermFreqs.cache()

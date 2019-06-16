@@ -1,5 +1,7 @@
 package racine
 
+import java.io.{File, PrintWriter}
+
 import org.apache.spark.sql.{DataFrame, Dataset, SparkSession}
 import org.slf4j.LoggerFactory
 import processing.SVD.{DOC_x_CONCEPT, TERM_x_CONCEPT}
@@ -37,12 +39,17 @@ object FindConceptProg {
 
     val tuple: ((DOC_IDS, TERM_IDS), DataFrame) = TF_IDF.docTermFrequen(spark, paragraphsAsBoW)
 
+    val termsId = tuple._1._2
+    val writer = new PrintWriter(new File("termsId.txt"))
+    writer.write(termsId.mkString("\n"))
+    writer.close()
+
     LOG.info("Nombre de documents : " + tuple._1._1.size)
-    LOG.info("Nombre de termes : " + tuple._1._2.length)
+    LOG.info("Nombre de termes : " + termsId.length)
 
     val u_v: (DOC_x_CONCEPT, TERM_x_CONCEPT) = SVD.doIt(tuple._2)
 
-    val topConceptTerms = topTermsInTopConcepts(u_v._2, 10, 10, tuple._1._2)
+    val topConceptTerms = topTermsInTopConcepts(u_v._2, 10, 10, termsId)
     val topConceptDocs = topDocsInTopConcepts(u_v._1, 10, 10, tuple._1._1)
     for ((terms, docs) <- topConceptTerms.zip(topConceptDocs)) {
       println("Concept terms: " + terms.map(_._1).mkString(", "))
@@ -93,4 +100,5 @@ object FindConceptProg {
     }
     topDocs
   }
+
 }
